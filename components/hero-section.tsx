@@ -14,7 +14,7 @@ export function HeroSection() {
   const handleAIInput = (message: string, files?: File[]) => {
     setIsLoading(true)
     setTimeout(() => {
-      router.push(`/pyvax-ai?prompt=${encodeURIComponent(message)}`)
+      router.push(`/ai?prompt=${encodeURIComponent(message)}`)
       setIsLoading(false)
     }, 300)
   }

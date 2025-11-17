@@ -43,7 +43,7 @@ export default function SpiralPage() {
               Explore
             </a>
             <a
-              href="/pyvax-ai"
+              href="/ai"
               className="px-8 py-3 border border-primary text-primary rounded-lg font-semibold hover:bg-primary/10 transition-colors"
             >
               Build dApp

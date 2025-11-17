@@ -1,8 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false, // Strict mode for production
   },
+  reactStrictMode: true,
+  swcMinify: true,
   images: {
     unoptimized: true,
   },
@@ -12,6 +14,8 @@ const nextConfig = {
       config.resolve.fallback = {
         ...config.resolve.fallback,
         fs: false,
+        net: false,
+        tls: false,
         path: false,
         crypto: false,
         stream: false,
@@ -27,7 +31,33 @@ const nextConfig = {
         child_process: false,
       }
     }
+    
+    // Externalize node modules for server
+    if (isServer) {
+      config.externals = config.externals || []
+      config.externals.push('bufferutil', 'utf-8-validate')
+    }
+    
     return config
+  },
+  
+  // CRITICAL: Headers required for WebContainer to function
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Cross-Origin-Embedder-Policy',
+            value: 'credentialless',
+          },
+          {
+            key: 'Cross-Origin-Opener-Policy',
+            value: 'same-origin',
+          },
+        ],
+      },
+    ]
   },
 }
 

@@ -33,7 +33,7 @@ const menuItems = [
   {
     title: "PyVax AI",
     icon: Sparkles,
-    href: "/pyvax-ai",
+    href: "/ai",
   },
 ]
 

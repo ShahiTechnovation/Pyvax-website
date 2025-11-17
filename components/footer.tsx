@@ -9,7 +9,7 @@ export function Footer() {
         { href: "/features", label: "Features" },
         { href: "/playground", label: "Playground" },
         { href: "/templates", label: "Templates" },
-        { href: "/pyvax-ai", label: "PyVax AI" },
+        { href: "/ai", label: "PyVax AI" },
       ],
     },
     {

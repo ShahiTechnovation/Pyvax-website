@@ -36,7 +36,7 @@ export default function SpiralDemoPage() {
 
           <div className="flex gap-6 justify-center pt-8">
             <Link
-              href="/pyvax-ai"
+              href="/ai"
               className="px-8 py-3 border border-white text-white hover:bg-white hover:text-black transition-all duration-300"
             >
               Build dApp
