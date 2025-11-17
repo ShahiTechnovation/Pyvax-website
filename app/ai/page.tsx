@@ -6,15 +6,19 @@
  * No external dependencies - fully integrated Next.js application
  */
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useAIChat, useAIProvider } from '@/lib/ai'
 import { useWebContainer } from '@/lib/webcontainer/use-webcontainer'
 import { useWorkbenchStore } from '@/lib/stores'
 import { Loader2, Sparkles, Code2, Terminal as TerminalIcon, Eye } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { APIKeyBanner } from '@/components/ai/APIKeyBanner'
+import { ProviderSelector } from '@/components/ai/ProviderSelector'
 
 export default function PyVaxAIPage() {
+  const [showAPIKeyBanner, setShowAPIKeyBanner] = useState(false)
+
   // Initialize AI and WebContainer
   const { messages, sendMessage, isStreaming, error } = useAIChat({
     onComplete: async (text) => {
@@ -30,6 +34,9 @@ export default function PyVaxAIPage() {
   const showWorkbench = useWorkbenchStore((state) => state.showWorkbench)
   const toggleWorkbench = useWorkbenchStore((state) => state.toggleWorkbench)
 
+  // Check for API key
+  const hasKey = hasAPIKey(provider)
+
   // Boot WebContainer on mount
   useEffect(() => {
     if (!isBooted && !isBooting) {
@@ -37,8 +44,14 @@ export default function PyVaxAIPage() {
     }
   }, [isBooted, isBooting, boot])
 
-  // Check for API key
-  const hasKey = hasAPIKey(provider)
+  // Show API key banner if no key is configured
+  useEffect(() => {
+    if (!hasKey && !showAPIKeyBanner) {
+      setShowAPIKeyBanner(true)
+    } else if (hasKey && showAPIKeyBanner) {
+      setShowAPIKeyBanner(false)
+    }
+  }, [hasKey, showAPIKeyBanner])
 
   if (isBooting) {
     return (
@@ -47,40 +60,6 @@ export default function PyVaxAIPage() {
           <div className="flex items-center gap-3 text-white">
             <Loader2 className="w-6 h-6 animate-spin text-blue-400" />
             <span className="text-lg">Initializing WebContainer...</span>
-          </div>
-        </Card>
-      </div>
-    )
-  }
-
-  if (!hasKey) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950/20 to-slate-950 flex items-center justify-center p-8">
-        <Card className="p-8 bg-slate-900/80 border-yellow-500/20 backdrop-blur-sm max-w-2xl">
-          <div className="text-center">
-            <Sparkles className="w-12 h-12 text-yellow-400 mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-white mb-4">API Key Required</h1>
-            <p className="text-slate-400 mb-6">
-              Please configure an API key for {provider} to use PyVax AI.
-            </p>
-            <div className="bg-slate-950/50 rounded-lg p-6 text-left mb-6">
-              <h3 className="text-sm font-bold text-blue-400 mb-2">Quick Setup:</h3>
-              <ol className="text-xs text-slate-400 space-y-2 list-decimal list-inside">
-                <li>Get an API key from your provider ({provider})</li>
-                <li>Open Settings (gear icon)</li>
-                <li>Add your API key</li>
-                <li>Start chatting!</li>
-              </ol>
-            </div>
-            <Button
-              onClick={() => {
-                // TODO: Open settings modal
-                alert('Settings modal will open here. Add API key management UI.')
-              }}
-              className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:opacity-90"
-            >
-              Open Settings
-            </Button>
           </div>
         </Card>
       </div>
@@ -96,12 +75,10 @@ export default function PyVaxAIPage() {
           <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
             PyVax AI
           </h1>
-          <span className="text-xs text-slate-500">
-            {provider} • {model}
-          </span>
         </div>
         
         <div className="flex items-center gap-3">
+          <ProviderSelector />
           <Button
             variant="outline"
             size="sm"
@@ -119,6 +96,14 @@ export default function PyVaxAIPage() {
         {/* Chat Area - Full implementation in Phase 5.2 */}
         <div className="flex-1 flex flex-col">
           <div className="flex-1 overflow-y-auto p-6 space-y-4">
+            {/* API Key Banner */}
+            {showAPIKeyBanner && !hasKey && (
+              <APIKeyBanner
+                provider={provider}
+                onDismiss={() => setShowAPIKeyBanner(false)}
+              />
+            )}
+
             {messages.length === 0 ? (
               <div className="flex items-center justify-center h-full">
                 <div className="text-center max-w-2xl">
@@ -180,23 +165,33 @@ export default function PyVaxAIPage() {
             <div className="flex gap-2">
               <input
                 type="text"
-                placeholder="Describe what you want to build..."
-                className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                placeholder={
+                  !hasKey
+                    ? 'Add an API key to start chatting...'
+                    : 'Describe what you want to build...'
+                }
+                className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                  if (e.key === 'Enter' && e.currentTarget.value.trim() && hasKey) {
                     sendMessage(e.currentTarget.value)
                     e.currentTarget.value = ''
                   }
                 }}
-                disabled={isStreaming}
+                disabled={isStreaming || !hasKey}
               />
               <Button
-                disabled={isStreaming}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:opacity-90"
+                disabled={isStreaming || !hasKey}
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                title={!hasKey ? 'Add API key to start chatting' : ''}
               >
                 {isStreaming ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Send'}
               </Button>
             </div>
+            {!hasKey && (
+              <p className="text-xs text-slate-500 mt-2 text-center">
+                Add your {provider} API key above to start chatting
+              </p>
+            )}
           </div>
         </div>
 
