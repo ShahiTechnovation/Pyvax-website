@@ -8,7 +8,14 @@ import { verifyPythonContract } from '@/lib/verification/verifier'
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
+    const body = await request.json() as { 
+      address?: string, 
+      network?: string, 
+      pythonSource?: string, 
+      contractName?: string, 
+      abi?: any, 
+      bytecode?: string 
+    }
     const { 
       address, 
       network = 'fuji',

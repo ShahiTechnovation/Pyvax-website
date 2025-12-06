@@ -5,6 +5,8 @@
   "scripts": {
     "build": "next build",
     "dev": "next dev",
+    "dev:ai": "start cmd /k \"cd hacked3.0-main && pnpm run dev\"",
+    "dev:all": "concurrently \"npm run dev\" \"npm run dev:ai\"",
     "lint": "next lint",
     "start": "next start",
     "test": "vitest --run",

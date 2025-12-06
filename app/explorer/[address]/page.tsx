@@ -101,7 +101,7 @@ export default function ExplorerPage() {
       let verifiedData = null
       try {
         const response = await fetch(`/api/verify/${address}?network=${network}`)
-        const data = await response.json()
+        const data = await response.json() as { success?: boolean, contract?: any }
         if (data.success && data.contract) {
           verifiedData = data.contract
         }
@@ -130,7 +130,7 @@ export default function ExplorerPage() {
     try {
       setLoadingTxs(true)
       const response = await fetch(`/api/blockscout?action=transactions&address=${address}&network=${network}&limit=10`)
-      const data = await response.json()
+      const data = await response.json() as { success?: boolean, data?: any }
       
       if (data.success && data.data) {
         setTransactions(data.data || [])
@@ -147,7 +147,7 @@ export default function ExplorerPage() {
     try {
       setLoadingTokens(true)
       const response = await fetch(`/api/blockscout?action=tokens&address=${address}&network=${network}`)
-      const data = await response.json()
+      const data = await response.json() as { success?: boolean, data?: any }
       
       if (data.success && data.data) {
         setTokens(data.data || [])
@@ -193,6 +193,7 @@ export default function ExplorerPage() {
 
   const callFunction = async (func: any, isView: boolean) => {
     if (!contractInfo || !contractInfo.abi || (!account && !isView)) return
+    if (!window.ethereum) return
 
     try {
       const provider = new ethers.BrowserProvider(window.ethereum)

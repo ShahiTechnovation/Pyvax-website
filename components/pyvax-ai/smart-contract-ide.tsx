@@ -8,13 +8,6 @@ import Editor from '@monaco-editor/react'
 import { ethers } from 'ethers'
 import { ElizaAgentAssistant } from './eliza-agent-assistant'
 
-// Extend Window interface for ethereum
-declare global {
-  interface Window {
-    ethereum?: any
-  }
-}
-
 interface CompilationResult {
   success: boolean
   abi?: any[]
@@ -104,7 +97,7 @@ export function SmartContractIDE() {
         body: JSON.stringify({ source: code })
       })
 
-      const result = await response.json()
+      const result = await response.json() as CompilationResult
 
       if (result.success) {
         setCompilationResult(result)
@@ -143,6 +136,10 @@ export function SmartContractIDE() {
     setActiveTab('console')
 
     try {
+      if (!window.ethereum) {
+        addConsoleLog('No Ethereum provider found', 'error')
+        return
+      }
       const provider = new ethers.BrowserProvider(window.ethereum)
       const signer = await provider.getSigner()
 

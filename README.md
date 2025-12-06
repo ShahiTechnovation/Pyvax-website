@@ -85,6 +85,37 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 **No API key required!** The system works with free models out of the box.
 
+### 🤖 AI Coding Assistant (NEW!)
+
+PyVax now includes a powerful AI coding assistant with WebContainer support:
+
+```bash
+# Quick start - runs both servers
+.\start-ai-dev.bat   # Windows Batch
+# OR
+.\start-ai-dev.ps1   # PowerShell
+
+# Manual start
+# Terminal 1: Main app
+npm run dev
+
+# Terminal 2: AI assistant
+cd hacked3.0-main
+pnpm install  # First time only
+pnpm run dev
+```
+
+Then navigate to [http://localhost:3000/ai](http://localhost:3000/ai)
+
+**Features:**
+- ✅ Natural language to full-stack app generation
+- ✅ Live preview with WebContainer
+- ✅ Multi-file project support
+- ✅ Built-in terminal and code editor
+- ✅ Multiple AI providers (OpenAI, Claude, Gemini, etc.)
+
+See [AI_INTEGRATION_GUIDE.md](./AI_INTEGRATION_GUIDE.md) for detailed setup.
+
 ---
 
 ## 📖 Documentation

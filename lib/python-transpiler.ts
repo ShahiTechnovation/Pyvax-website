@@ -9,7 +9,7 @@ export async function initializePyodide() {
   }
   
   // Dynamic import to avoid build-time issues
-  const { loadPyodide } = await import('pyodide')
+  const { loadPyodide } = await import('pyodide' as any)
   if (pyodideInstance) return pyodideInstance
   
   try {

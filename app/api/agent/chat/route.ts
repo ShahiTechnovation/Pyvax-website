@@ -9,7 +9,8 @@ import { LLMMessage } from '@/lib/llm/providers'
 
 export async function POST(request: NextRequest) {
   try {
-    const { messages, model, apiKey, stream = false } = await request.json()
+    const body = await request.json() as { messages?: LLMMessage[], model?: string, apiKey?: string, stream?: boolean }
+    const { messages, model, apiKey, stream = false } = body
 
     if (!messages || !Array.isArray(messages)) {
       return NextResponse.json(

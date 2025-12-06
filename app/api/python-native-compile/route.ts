@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
     })
 
     if (!compilerResponse.ok) {
-      const error = await compilerResponse.json()
+      const error = await compilerResponse.json() as { detail?: string }
       return NextResponse.json(
         {
           success: false,

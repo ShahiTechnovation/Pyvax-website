@@ -35,7 +35,7 @@ export default function ContractPage() {
     try {
       setLoading(true)
       const response = await fetch(`/api/verify/${address}?network=${network}`)
-      const data = await response.json()
+      const data = await response.json() as { success?: boolean, contract?: any }
 
       if (data.success && data.contract) {
         setContract(data.contract)
@@ -64,6 +64,7 @@ export default function ContractPage() {
 
   const callFunction = async (func: any, isView: boolean) => {
     if (!contract || (!account && !isView)) return
+    if (!window.ethereum) return
 
     try {
       const provider = new ethers.BrowserProvider(window.ethereum)

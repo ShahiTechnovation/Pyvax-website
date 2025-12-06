@@ -56,7 +56,7 @@ export abstract class BaseAgent {
     this.model = model
   }
 
-  abstract async execute(context: AgentContext, task: AgentTask): Promise<any>
+  abstract execute(context: AgentContext, task: AgentTask): Promise<any>
 
   protected async generateWithLLM(messages: LLMMessage[]): Promise<string> {
     const response = await llmClient.generate({

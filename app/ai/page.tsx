@@ -1,65 +1,94 @@
 'use client'
 
 /**
- * PyVax AI Page - Unified AI Interface
- * Complete integration of WebContainer, LLM streaming, and smart contract generation
- * No external dependencies - fully integrated Next.js application
+ * PyVax AI Page - Embedded Bolt.diy Clone
+ * Full-featured AI coding assistant with WebContainer support
  */
 
 import { useEffect, useState } from 'react'
-import { useAIChat, useAIProvider } from '@/lib/ai'
-import { useWebContainer } from '@/lib/webcontainer/use-webcontainer'
-import { useWorkbenchStore } from '@/lib/stores'
-import { Loader2, Sparkles, Code2, Terminal as TerminalIcon, Eye } from 'lucide-react'
+import { Loader2, Sparkles, ExternalLink, RefreshCw } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { APIKeyBanner } from '@/components/ai/APIKeyBanner'
-import { ProviderSelector } from '@/components/ai/ProviderSelector'
 
 export default function PyVaxAIPage() {
-  const [showAPIKeyBanner, setShowAPIKeyBanner] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isServerRunning, setIsServerRunning] = useState(false)
+  const [iframeKey, setIframeKey] = useState(0)
 
-  // Initialize AI and WebContainer
-  const { messages, sendMessage, isStreaming, error } = useAIChat({
-    onComplete: async (text) => {
-      // Auto-apply AI response to WebContainer
-      if (isBooted) {
-        await applyAI(text, { autoInstall: true, autoStart: true })
+  // Embedded project runs on port 5173 (Vite default for Remix)
+  const EMBEDDED_URL = 'http://localhost:5173'
+
+  // Check if the embedded server is running
+  useEffect(() => {
+    const checkServer = async () => {
+      try {
+        const response = await fetch(EMBEDDED_URL, { method: 'HEAD' })
+        if (response.ok) {
+          setIsServerRunning(true)
+          setIsLoading(false)
+        }
+      } catch (error) {
+        setIsServerRunning(false)
+        setIsLoading(false)
       }
-    },
-  })
-
-  const { provider, model, hasAPIKey } = useAIProvider()
-  const { isBooted, isBooting, boot, applyAI } = useWebContainer({ autoboot: true })
-  const showWorkbench = useWorkbenchStore((state) => state.showWorkbench)
-  const toggleWorkbench = useWorkbenchStore((state) => state.toggleWorkbench)
-
-  // Check for API key
-  const hasKey = hasAPIKey(provider)
-
-  // Boot WebContainer on mount
-  useEffect(() => {
-    if (!isBooted && !isBooting) {
-      boot()
     }
-  }, [isBooted, isBooting, boot])
 
-  // Show API key banner if no key is configured
-  useEffect(() => {
-    if (!hasKey && !showAPIKeyBanner) {
-      setShowAPIKeyBanner(true)
-    } else if (hasKey && showAPIKeyBanner) {
-      setShowAPIKeyBanner(false)
-    }
-  }, [hasKey, showAPIKeyBanner])
+    checkServer()
+    const interval = setInterval(checkServer, 3000)
+    return () => clearInterval(interval)
+  }, [])
 
-  if (isBooting) {
+  const handleRefresh = () => {
+    setIframeKey((prev) => prev + 1)
+  }
+
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950/20 to-slate-950 flex items-center justify-center">
         <Card className="p-8 bg-slate-900/80 border-blue-500/20 backdrop-blur-sm">
           <div className="flex items-center gap-3 text-white">
             <Loader2 className="w-6 h-6 animate-spin text-blue-400" />
-            <span className="text-lg">Initializing WebContainer...</span>
+            <span className="text-lg">Checking AI Server...</span>
+          </div>
+        </Card>
+      </div>
+    )
+  }
+
+  if (!isServerRunning) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950/20 to-slate-950 flex items-center justify-center p-4">
+        <Card className="p-8 bg-slate-900/80 border-blue-500/20 backdrop-blur-sm max-w-2xl">
+          <div className="text-center">
+            <Sparkles className="w-16 h-16 text-blue-400 mx-auto mb-4" />
+            <h1 className="text-2xl font-bold text-white mb-4">
+              PyVax AI Server Not Running
+            </h1>
+            <p className="text-slate-400 mb-6">
+              The AI coding assistant needs to be started separately. Please run the following commands:
+            </p>
+            <div className="bg-slate-950 border border-slate-700 rounded-lg p-4 mb-6 text-left">
+              <pre className="text-green-400 text-sm overflow-x-auto">
+                <code>{`# Navigate to the AI project
+cd hacked3.0-main
+
+# Install dependencies (first time only)
+pnpm install
+
+# Start the AI server
+pnpm run dev`}</code>
+              </pre>
+            </div>
+            <p className="text-slate-400 text-sm mb-4">
+              The AI server will start on <span className="text-blue-400 font-mono">{EMBEDDED_URL}</span>
+            </p>
+            <Button
+              onClick={() => window.location.reload()}
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:opacity-90"
+            >
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Check Again
+            </Button>
           </div>
         </Card>
       </div>
@@ -73,162 +102,58 @@ export default function PyVaxAIPage() {
         <div className="flex items-center gap-3">
           <Sparkles className="w-5 h-5 text-blue-400" />
           <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-            PyVax AI
+            PyVax AI - Coding Assistant
           </h1>
         </div>
         
         <div className="flex items-center gap-3">
-          <ProviderSelector />
           <Button
             variant="outline"
             size="sm"
-            onClick={toggleWorkbench}
+            onClick={handleRefresh}
             className="bg-slate-800 border-slate-700"
           >
-            {showWorkbench ? <Eye className="w-4 h-4" /> : <Code2 className="w-4 h-4" />}
-            <span className="ml-2">{showWorkbench ? 'Hide' : 'Show'} Workbench</span>
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Refresh
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => window.open(EMBEDDED_URL, '_blank')}
+            className="bg-slate-800 border-slate-700"
+          >
+            <ExternalLink className="w-4 h-4 mr-2" />
+            Open in New Tab
           </Button>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Chat Area - Full implementation in Phase 5.2 */}
-        <div className="flex-1 flex flex-col">
-          <div className="flex-1 overflow-y-auto p-6 space-y-4">
-            {/* API Key Banner */}
-            {showAPIKeyBanner && !hasKey && (
-              <APIKeyBanner
-                provider={provider}
-                onDismiss={() => setShowAPIKeyBanner(false)}
-              />
-            )}
-
-            {messages.length === 0 ? (
-              <div className="flex items-center justify-center h-full">
-                <div className="text-center max-w-2xl">
-                  <Sparkles className="w-16 h-16 text-blue-400 mx-auto mb-4" />
-                  <h2 className="text-2xl font-bold text-white mb-2">
-                    Welcome to PyVax AI
-                  </h2>
-                  <p className="text-slate-400 mb-6">
-                    Build production-ready dApps using natural language.
-                    I can generate Python smart contracts, React frontends, and deploy to Avalanche.
-                  </p>
-                  <div className="grid grid-cols-2 gap-4 text-left">
-                    {[
-                      'Create an ERC-20 token contract',
-                      'Build a DeFi staking dApp',
-                      'Generate an NFT marketplace',
-                      'Audit my smart contract',
-                    ].map((example) => (
-                      <Card
-                        key={example}
-                        className="p-4 bg-slate-900/50 border-slate-700 hover:border-blue-500/50 cursor-pointer transition-colors"
-                        onClick={() => sendMessage(example)}
-                      >
-                        <p className="text-sm text-slate-300">{example}</p>
-                      </Card>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            ) : (
-              messages.map((msg) => (
-                <Card
-                  key={msg.id}
-                  className={`p-4 ${
-                    msg.role === 'user'
-                      ? 'bg-blue-900/20 border-blue-500/30 ml-auto max-w-2xl'
-                      : 'bg-slate-900/50 border-slate-700 max-w-3xl'
-                  }`}
-                >
-                  <p className="text-slate-200 whitespace-pre-wrap">{msg.content}</p>
-                </Card>
-              ))
-            )}
-            {isStreaming && (
-              <div className="flex items-center gap-2 text-slate-400">
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span className="text-sm">AI is thinking...</span>
-              </div>
-            )}
-            {error && (
-              <Card className="p-4 bg-red-900/20 border-red-500/30">
-                <p className="text-red-400">Error: {error.message}</p>
-              </Card>
-            )}
-          </div>
-
-          {/* Chat Input */}
-          <div className="border-t border-slate-800 p-4">
-            <div className="flex gap-2">
-              <input
-                type="text"
-                placeholder={
-                  !hasKey
-                    ? 'Add an API key to start chatting...'
-                    : 'Describe what you want to build...'
-                }
-                className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && e.currentTarget.value.trim() && hasKey) {
-                    sendMessage(e.currentTarget.value)
-                    e.currentTarget.value = ''
-                  }
-                }}
-                disabled={isStreaming || !hasKey}
-              />
-              <Button
-                disabled={isStreaming || !hasKey}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
-                title={!hasKey ? 'Add API key to start chatting' : ''}
-              >
-                {isStreaming ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Send'}
-              </Button>
-            </div>
-            {!hasKey && (
-              <p className="text-xs text-slate-500 mt-2 text-center">
-                Add your {provider} API key above to start chatting
-              </p>
-            )}
-          </div>
-        </div>
-
-        {/* Workbench - Shown when toggled */}
-        {showWorkbench && (
-          <div className="w-1/2 border-l border-slate-800 bg-slate-900/50">
-            <div className="h-full flex flex-col">
-              <div className="p-4 border-b border-slate-800">
-                <h3 className="font-semibold text-white flex items-center gap-2">
-                  <TerminalIcon className="w-4 h-4 text-blue-400" />
-                  Workbench
-                </h3>
-              </div>
-              <div className="flex-1 overflow-auto p-4">
-                <p className="text-slate-400 text-sm">
-                  Full workbench implementation with Monaco Editor, Terminal, and Preview coming in Phase 5.2-5.4
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
+      {/* Embedded AI Interface */}
+      <div className="flex-1 relative">
+        <iframe
+          key={iframeKey}
+          src={EMBEDDED_URL}
+          className="w-full h-full border-0"
+          title="PyVax AI Coding Assistant"
+          allow="clipboard-read; clipboard-write; cross-origin-isolated"
+          sandbox="allow-same-origin allow-scripts allow-forms allow-modals allow-popups allow-downloads allow-top-navigation-by-user-activation allow-storage-access-by-user-activation"
+          referrerPolicy="no-referrer-when-downgrade"
+        />
       </div>
 
       {/* Status Bar */}
       <div className="bg-slate-900 border-t border-slate-800 px-6 py-2 flex items-center justify-between text-xs text-slate-400">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${isBooted ? 'bg-green-400' : 'bg-yellow-400'}`} />
-            <span>WebContainer: {isBooted ? 'Ready' : 'Booting'}</span>
+            <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+            <span>AI Server: Running</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${hasKey ? 'bg-green-400' : 'bg-red-400'}`} />
-            <span>API Key: {hasKey ? 'Configured' : 'Missing'}</span>
+            <span className="font-mono text-blue-400">{EMBEDDED_URL}</span>
           </div>
         </div>
         <div>
-          PyVax AI • Unified Interface • Phase 5 Integration
+          PyVax AI • Full-Stack Coding Assistant • Powered by WebContainer
         </div>
       </div>
     </div>

@@ -42,11 +42,11 @@ async function generateWithOpenAI(prompt: string, agentId: string, apiKey: strin
   })
 
   if (!response.ok) {
-    const error = await response.json()
+    const error = await response.json() as { error?: { message?: string } }
     throw new Error(error.error?.message || 'OpenAI API error')
   }
 
-  const data = await response.json()
+  const data = await response.json() as { choices: Array<{ message: { content: string } }> }
   return data.choices[0].message.content
 }
 
@@ -87,11 +87,11 @@ async function generateWithGemini(prompt: string, agentId: string, apiKey: strin
   )
 
   if (!response.ok) {
-    const error = await response.json()
+    const error = await response.json() as { error?: { message?: string } }
     throw new Error(error.error?.message || 'Gemini API error')
   }
 
-  const data = await response.json()
+  const data = await response.json() as { candidates: Array<{ content: { parts: Array<{ text: string }> } }> }
   return data.candidates[0].content.parts[0].text
 }
 
@@ -125,11 +125,11 @@ async function generateWithClaude(prompt: string, agentId: string, apiKey: strin
   })
 
   if (!response.ok) {
-    const error = await response.json()
+    const error = await response.json() as { error?: { message?: string } }
     throw new Error(error.error?.message || 'Claude API error')
   }
 
-  const data = await response.json()
+  const data = await response.json() as { content: Array<{ text: string }> }
   return data.content[0].text
 }
 
@@ -501,11 +501,11 @@ Generate COMPLETE, DEPLOYABLE Solidity code. Include deployment instructions in 
   })
 
   if (!response.ok) {
-    const error = await response.json()
+    const error = await response.json() as { error?: { message?: string } }
     throw new Error(error.error?.message || 'OpenRouter API error')
   }
 
-  const data = await response.json()
+  const data = await response.json() as { choices: Array<{ message: { content: string } }> }
   return data.choices[0].message.content
 }
 

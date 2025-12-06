@@ -74,7 +74,7 @@ export function AiChatInterface() {
         let errorMessage = "I'm having trouble processing your request right now."
 
         try {
-          const errorData = await response.json()
+          const errorData = await response.json() as { message?: string }
           console.log("[v0] API error data:", errorData)
           errorMessage = errorData.message || errorMessage
         } catch (parseError) {
@@ -92,13 +92,13 @@ export function AiChatInterface() {
         return
       }
 
-      const data = await response.json()
+      const data = await response.json() as { message?: string, code?: string }
       console.log("[v0] API response data:", data)
 
       const aiResponse: Message = {
         id: (Date.now() + 1).toString(),
         type: "ai",
-        content: data.message,
+        content: data.message || '',
         timestamp: new Date(),
         code: data.code || undefined,
       }

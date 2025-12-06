@@ -104,7 +104,7 @@ export function CompilerPanel({ onCompile, onDeploy }: CompilerPanelProps) {
 
                 <TabsContent value="abi" className="mt-3">
                   <div className="space-y-2">
-                    {compilationOutput.contracts.length > 1 && (
+                    {compilationOutput.contracts && compilationOutput.contracts.length > 1 && (
                       <select
                         className="w-full bg-[#1e1e1e] border border-[#3e3e42] rounded px-2 py-1 text-sm"
                         value={selectedContract}
@@ -118,14 +118,17 @@ export function CompilerPanel({ onCompile, onDeploy }: CompilerPanelProps) {
                     
                     <div className="relative">
                       <pre className="bg-[#1e1e1e] p-3 rounded text-xs overflow-x-auto max-h-64">
-                        {JSON.stringify(compilationOutput.contracts[selectedContract].abi, null, 2)}
+                        {compilationOutput.contracts?.[selectedContract]?.abi ? JSON.stringify(compilationOutput.contracts?.[selectedContract]?.abi, null, 2) : 'No ABI available'}
                       </pre>
                       <div className="absolute top-2 right-2 flex gap-1">
                         <Button
                           size="sm"
                           variant="ghost"
                           className="h-6 w-6 p-0 bg-[#252526] hover:bg-[#3e3e42]"
-                          onClick={() => copyToClipboard(JSON.stringify(compilationOutput.contracts[selectedContract].abi))}
+                          onClick={() => {
+                            const abi = compilationOutput.contracts?.[selectedContract]?.abi
+                            if (abi) copyToClipboard(JSON.stringify(abi))
+                          }}
                         >
                           <Copy className="w-3 h-3" />
                         </Button>
@@ -133,7 +136,10 @@ export function CompilerPanel({ onCompile, onDeploy }: CompilerPanelProps) {
                           size="sm"
                           variant="ghost"
                           className="h-6 w-6 p-0 bg-[#252526] hover:bg-[#3e3e42]"
-                          onClick={() => downloadABI(compilationOutput.contracts[selectedContract])}
+                          onClick={() => {
+                            const contract = compilationOutput.contracts?.[selectedContract]
+                            if (contract) downloadABI(contract)
+                          }}
                         >
                           <Download className="w-3 h-3" />
                         </Button>
@@ -145,13 +151,16 @@ export function CompilerPanel({ onCompile, onDeploy }: CompilerPanelProps) {
                 <TabsContent value="bytecode" className="mt-3">
                   <div className="relative">
                     <pre className="bg-[#1e1e1e] p-3 rounded text-xs overflow-x-auto max-h-64 break-all">
-                      {compilationOutput.contracts[selectedContract].bytecode}
+                      {compilationOutput.contracts?.[selectedContract]?.bytecode || 'No bytecode available'}
                     </pre>
                     <Button
                       size="sm"
                       variant="ghost"
                       className="absolute top-2 right-2 h-6 w-6 p-0 bg-[#252526] hover:bg-[#3e3e42]"
-                      onClick={() => copyToClipboard(compilationOutput.contracts[selectedContract].bytecode)}
+                      onClick={() => {
+                        const bytecode = compilationOutput.contracts?.[selectedContract]?.bytecode
+                        if (bytecode) copyToClipboard(bytecode)
+                      }}
                     >
                       <Copy className="w-3 h-3" />
                     </Button>
@@ -161,7 +170,7 @@ export function CompilerPanel({ onCompile, onDeploy }: CompilerPanelProps) {
                 <TabsContent value="deploy" className="mt-3">
                   <div className="space-y-3">
                     <p className="text-xs text-gray-400">
-                      Deploy {compilationOutput.contracts[selectedContract].name} to blockchain
+                      Deploy {compilationOutput.contracts?.[selectedContract]?.name || 'Contract'} to blockchain
                     </p>
                     <Button
                       onClick={() => onDeploy(selectedContract)}

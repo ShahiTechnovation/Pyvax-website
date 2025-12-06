@@ -227,7 +227,7 @@ export async function spawnProcess(
       const { done, value } = await reader.read()
       if (done) break
       
-      const text = new TextDecoder().decode(value)
+      const text = new TextDecoder().decode(value as any)
       output += text
       options?.onOutput?.(text)
     }
@@ -294,7 +294,7 @@ export async function startDevServer(
           const { done, value } = await reader.read()
           if (done) break
           
-          const text = new TextDecoder().decode(value)
+          const text = new TextDecoder().decode(value as any)
           onOutput?.(text)
           
           // Detect server URL (various frameworks)
@@ -320,7 +320,7 @@ export async function startDevServer(
       const defaultPorts = [3000, 5173, 8080, 4200]
       for (const port of defaultPorts) {
         try {
-          const url = await container.waitForPort(port)
+          const url = await (container as any).waitForPort(port)
           if (url) {
             serverUrl = url
             console.log(`✅ Dev server detected on port ${port}:`, url)

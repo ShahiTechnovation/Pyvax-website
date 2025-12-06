@@ -15,12 +15,6 @@ import { smartCompile, warmupBrowserCompiler } from '@/lib/smart-compiler'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 
-declare global {
-  interface Window {
-    ethereum?: any
-  }
-}
-
 type Language = 'python' | 'solidity'
 type CompilerMode = 'native' | 'transpile'
 
@@ -312,6 +306,10 @@ export function UnifiedIDE() {
     addLog('Deploying contract to Avalanche...', 'info')
 
     try {
+      if (!window.ethereum) {
+        addLog('No Ethereum provider found', 'error')
+        return
+      }
       const provider = new ethers.BrowserProvider(window.ethereum)
       const signer = await provider.getSigner()
 
@@ -455,7 +453,7 @@ export function UnifiedIDE() {
         })
       })
 
-      const result = await response.json()
+      const result = await response.json() as { success?: boolean, verified?: boolean, message?: string, errors?: string[] }
       
       console.log('[Auto-Verify] Result:', result)
       console.log('[Auto-Verify] Full details:', JSON.stringify(result, null, 2))
@@ -490,6 +488,10 @@ export function UnifiedIDE() {
     }
 
     try {
+      if (!window.ethereum) {
+        addLog('No Ethereum provider found', 'error')
+        return
+      }
       const provider = new ethers.BrowserProvider(window.ethereum)
       const signer = await provider.getSigner()
       

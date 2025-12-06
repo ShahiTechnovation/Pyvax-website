@@ -44,8 +44,8 @@ export function TemplateShowcase({ onSelectTemplate }: TemplateShowcaseProps) {
               </div>
 
               <div className="flex flex-wrap gap-2">
-                <Badge className={complexityColors[template.complexity]}>{template.complexity}</Badge>
-                <Badge className={gasColors[template.estimatedGasUsage]}>{template.estimatedGasUsage} Gas</Badge>
+                <Badge className={complexityColors[template.complexity as keyof typeof complexityColors]}>{template.complexity}</Badge>
+                <Badge className={gasColors[template.estimatedGasUsage as keyof typeof gasColors]}>{template.estimatedGasUsage} Gas</Badge>
               </div>
 
               <div className="space-y-2">

@@ -422,12 +422,12 @@ Built with ❤️ using PyVax AI
       })
 
       if (!response.ok) {
-        const errorData = await response.json()
+        const errorData = await response.json() as { error?: string }
         throw new Error(errorData.error || 'Failed to generate code')
       }
 
-      const data = await response.json()
-      const generatedCode = data.code
+      const data = await response.json() as { code?: string }
+      const generatedCode = data.code || ''
 
       const projectName = prompt.split(' ').slice(0, 3).join(' ') || 'Web3 DApp'
       

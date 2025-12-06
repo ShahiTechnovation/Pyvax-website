@@ -64,7 +64,11 @@ export async function initializeStores() {
 }
 
 // Helper: Reset all stores (useful for testing)
-export function resetAllStores() {
+export async function resetAllStores() {
+  const { useAIStore } = await import('./ai-store')
+  const { useWorkbenchStore } = await import('./workbench-store')
+  const { useSettingsStore } = await import('./settings-store')
+  
   useAIStore.getState().clearMessages()
   useWorkbenchStore.getState().reset()
   useSettingsStore.getState().resetSettings()

@@ -59,7 +59,7 @@ export default function TestVerificationPage() {
         })
       })
 
-      const result = await response.json()
+      const result = await response.json() as { success?: boolean, message?: string }
       
       if (result.success) {
         setTestResult(`✅ Success! ${result.message}`)

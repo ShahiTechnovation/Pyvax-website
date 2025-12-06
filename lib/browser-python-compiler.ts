@@ -5,7 +5,8 @@
  * IMPORTANT: This module should only be used in client-side code (use client)
  */
 
-import type { PyodideInterface } from 'pyodide'
+// Type placeholder for Pyodide
+type PyodideInterface = any
 
 // Check if we're in browser environment
 const isBrowser = typeof window !== 'undefined'
@@ -50,7 +51,7 @@ export async function initPyodide(): Promise<PyodideInterface> {
       console.log('[Pyodide] Loading Python runtime...')
       
       // Dynamically import Pyodide only when needed (client-side only)
-      const { loadPyodide } = await import('pyodide')
+      const { loadPyodide } = await import('pyodide' as any)
       
       pyodide = await loadPyodide({
         indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.25.0/full/',

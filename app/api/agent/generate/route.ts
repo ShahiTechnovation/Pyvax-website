@@ -11,7 +11,8 @@ export const runtime = 'edge'
 
 export async function POST(request: NextRequest) {
   try {
-    const { requirements, projectType, chain, model, apiKey } = await request.json()
+    const body = await request.json() as { requirements?: string, projectType?: string, chain?: string, model?: string, apiKey?: string }
+    const { requirements, projectType, chain, model, apiKey } = body
 
     if (!requirements) {
       return new Response(
@@ -28,8 +29,8 @@ export async function POST(request: NextRequest) {
 
     // Set context
     orchestrator.setContext({
-      projectType: projectType || 'custom',
-      chain: chain || 'avalanche',
+      projectType: (projectType as any) || 'custom',
+      chain: (chain as any) || 'avalanche',
       requirements,
     })
 

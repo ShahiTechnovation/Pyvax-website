@@ -85,7 +85,7 @@ export interface SettingsState {
   importSettings: (json: string) => Promise<void>
 }
 
-const defaultSettings: Omit<SettingsState, keyof { [K in keyof SettingsState]: SettingsState[K] extends Function ? K : never }[keyof SettingsState]> = {
+const defaultSettings: any = {
   apiKeys: {},
   providerSettings: {},
   theme: 'dark',

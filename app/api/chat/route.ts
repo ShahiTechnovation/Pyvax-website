@@ -2,7 +2,8 @@ import { type NextRequest, NextResponse } from "next/server"
 
 export async function POST(request: NextRequest) {
   try {
-    const { message, context } = await request.json()
+    const body = await request.json() as { message?: string, context?: string }
+    const { message, context } = body
 
     if (!process.env.POE_API_KEY) {
       return NextResponse.json(
@@ -65,7 +66,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const data = await response.json()
+    const data = await response.json() as { choices: Array<{ message: { content: string } }> }
     const aiMessage = data.choices[0].message.content
 
     // Extract code if present (simple regex for Python code blocks)

@@ -37,7 +37,7 @@ export function HeroSection() {
       opacity: 1,
       transition: {
         duration: 0.5,
-        ease: "easeOut",
+        ease: "easeOut" as const,
       },
     },
   }
@@ -71,6 +71,15 @@ export function HeroSection() {
           animate="visible"
           className="w-full flex flex-col items-center text-center max-w-4xl mx-auto"
         >
+          {/* PyVax Logo */}
+          <motion.div variants={itemVariants} className="mb-8">
+            <img 
+              src="/pyvax-logo.svg" 
+              alt="PyVax Logo" 
+              className="w-24 h-24 md:w-32 md:h-32 lg:w-40 lg:h-40 mx-auto"
+            />
+          </motion.div>
+          
           {/* PyVax heading */}
           <motion.h1 variants={itemVariants} className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6">
             <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
